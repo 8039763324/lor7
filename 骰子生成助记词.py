@@ -15,7 +15,6 @@ if len(date) % 2 != 0:
 
 seed = sha256(bytes.fromhex(date)).hexdigest()       #1.把传进来的16进制数先进行一次hash 统一成64位的16进制数，真正要生成助记词的是这个 64 位数
 
-
 mnemonicWords = [12,15,18,21,24]
 for i in mnemonicWords:
 	mnemonicList = []
