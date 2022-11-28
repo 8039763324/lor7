@@ -8,36 +8,30 @@ wordlists =['abandon','ability','able','about','above','absent','absorb','abstra
 
 dice6 = dice.replace('6','0')
 dice2 = bin(int(dice6,6))[2:]
-dice16 = hex(int(dice2,2))[2:]
-if len(dice16) % 2 != 0:
-    dice16 = '0' + dice16
-hash = sha256(bytes.fromhex(dice16))
-hx = hash.hexdigest()
-hx2 = bin(int(hx,16))[2:].zfill(256)
-bip264 = dice2 + hx2[0:8]
-bip264arr = re.findall(r'.{%d}' % int(11), bip264)
-bip24 = []
-mnemonic = ''
-for index,value in enumerate(bip264arr):
-    mnemonic += (wordlists[int(value, 2)] + ' ')
-    bip24.append(wordlists[int(value,2)])
-    print(index+1,'【',wordlists[int(value,2)],'】',int(value,2))
-print('24词助记词：',mnemonic)
-print('以上是24词版本，下面是12词版本');
-print('==================================================================');
-mnemonic12 = []
-mnemonic = ''
-dice2 = bin(int(dice6,6))[2:][0:128] #12词版本只用保存128位就可以了
-dice16 = hex(int(dice2,2))[2:]       #截取128位二进制数后再转化回16进制，这样才能得到正确的128 的hash 值 
-if len(dice16) % 2 != 0:
-    dice16 = '0' + dice16
-hash = sha256(bytes.fromhex(dice16)).hexdigest()
-hash2 = bin(int(hash, 16))[2: ].zfill(256)
-binary132 =  dice2 + hash2[0:4]   
-binary132arr = re.findall(r'.{%d}' % int(11), binary132)
-for index, value in enumerate(binary132arr):
-    mnemonic += (wordlists[int(value, 2)] + ' ')
-    mnemonic12.append(wordlists[int(value, 2)])
-    print(index + 1, '【', wordlists[int(value, 2)], '】', int(value, 2))
-print('12词助记词：',mnemonic)
+date = hex(int(dice2,2))[2:]
+
+if len(date) % 2 != 0:
+    date = '0' + date
+
+seed = sha256(bytes.fromhex(date)).hexdigest()       #1.把传进来的16进制数先进行一次hash 统一成64位的16进制数，真正要生成助记词的是这个 64 位数
+
+
+mnemonicWords = [12,15,18,21,24]
+for i in mnemonicWords:
+	mnemonicList = []
+	mnemonic = ''
+	seedBin = bin(int(seed, 16))[2:].zfill(256)[0:int(i*11 - i/3)] #2进制
+	mnemonicSeed = hex(int(seedBin,2))[2:] #截取128位二进制数后再转化回16进制，这样才能得到正确的128 的hash 值
+	if len(mnemonicSeed) % 2 != 0:
+	    mnemonicSeed = '0' + mnemonicSeed
+	hash = sha256(bytes.fromhex(mnemonicSeed)).hexdigest()
+	hashBin = bin(int(hash, 16))[2: ].zfill(256)
+	binary =  seedBin + hashBin[0:int(i/3)]   #12词版本128+4 = 132 ，132/11=12 
+	binaryArr = re.findall(r'.{%d}' % int(11), binary)
+	for index, value in enumerate(binaryArr):
+	    mnemonic += (wordlists[int(value, 2)] + ' ')
+	    mnemonicList.append(wordlists[int(value, 2)])
+	    print(index + 1, '【', wordlists[int(value, 2)], '】', int(value, 2))
+	print('以上是',i,'词助记词：',mnemonic)
+
 print('请到https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt 检查对应词是否正确')
