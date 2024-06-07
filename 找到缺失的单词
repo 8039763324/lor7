@@ -1,0 +1,24 @@
+from mnemonic import Mnemonic
+
+# 助记词列表，注意第12个单词用 None 表示缺失的单词
+mnemonic_list = ["abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse", "access", None, "accident", "account", "accuse"]
+
+# BIP39 单词列表
+mnemo = Mnemonic("english")
+word_list = mnemo.wordlist
+
+# 找到所有适合的单词
+def find_all_missing_words(mnemonic_list):
+    suitable_words = []
+    for word in word_list:
+        mnemonic_list[11] = word
+        mnemonic_sentence = ' '.join(mnemonic_list)
+        if mnemo.check(mnemonic_sentence):
+            suitable_words.append(word)
+    return suitable_words
+
+missing_words = find_all_missing_words(mnemonic_list)
+if missing_words:
+    print(f"Suitable words are: {', '.join(missing_words)}")
+else:
+    print("Could not find any suitable words.")
